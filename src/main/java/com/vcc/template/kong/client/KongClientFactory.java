@@ -39,8 +39,13 @@ public class KongClientFactory {
             );
             factory.setReadTimeout(java.time.Duration.ofMillis(properties.getTimeout()));
 
+            String adminUrl = instance.getAdminUrl();
+            if ("default".equals(instance.getCode()) && properties.getUrl() != null && !properties.getUrl().isBlank()) {
+                adminUrl = properties.getUrl();
+            }
+
             return restClientBuilder
-                    .baseUrl(instance.getAdminUrl())
+                    .baseUrl(adminUrl)
                     .requestFactory(factory)
                     .build();
         });

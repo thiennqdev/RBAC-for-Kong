@@ -99,7 +99,7 @@ services:
         condition: service_completed_successfully
 
   minio:
-    image: minio/minio
+    image: cgr.dev/chainguard/minio:latest
     container_name: rbac-minio
     ports:
       - "9000:9000"
@@ -117,7 +117,7 @@ services:
       retries: 5
 
   minio-create-bucket:
-    image: minio/mc
+    image: cgr.dev/chainguard/minio:latest
     container_name: rbac-minio-mc
     depends_on:
       minio:
@@ -222,11 +222,15 @@ services:
       SPRING_DATA_REDIS_PORT: 6379
       SPRING_DATA_REDIS_PASSWORD: redis123
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/rbac_kong_logs
+      SPRING_MONGODB_URI: mongodb://mongodb:27017/rbac_kong_logs
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       S3_ENDPOINT: http://minio:9000
       APP_STORAGE_MINIO_ENDPOINT: http://minio:9000
       KEYCLOAK_SERVER_URL: http://keycloak:8080
+      KONG_ADMIN_URL: http://kong:8001
+      PROMETHEUS_URL: http://prometheus:9090
       KONG_HTTP_LOG_CALLBACK_URL: http://backend:8080/api/internal/kong-logs
+      MASTER_KEY: ${MASTER_KEY:-my-secure-master-key-32-bytes-ok}
     depends_on:
       postgres:
         condition: service_healthy

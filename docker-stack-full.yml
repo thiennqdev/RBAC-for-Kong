@@ -172,7 +172,7 @@ services:
 
   # 7. MinIO Object Storage
   minio:
-    image: quay.io/minio/minio:latest
+    image: cgr.dev/chainguard/minio:latest
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -201,7 +201,7 @@ services:
 
   # 8. MinIO Create Bucket Job (Khởi tạo bucket và thoát)
   minio-create-bucket:
-    image: quay.io/minio/mc:latest
+    image: cgr.dev/chainguard/minio:latest
     entrypoint: >
       /bin/sh -c "
       sleep 5;

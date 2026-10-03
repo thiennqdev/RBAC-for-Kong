@@ -21,6 +21,9 @@ public class KongObservabilityInitializer implements ApplicationRunner {
     private final KongAdminClient kongAdminClient;
     private final KongInstanceRepository kongInstanceRepository;
 
+    @org.springframework.beans.factory.annotation.Value("${kong.http-log.callback-url:http://backend:8080/api/internal/kong-logs}")
+    private String httpLogCallbackUrl;
+
     @Override
     public void run(ApplicationArguments args) {
         log.info("Checking global Kong observability plugins for all instances...");
@@ -57,7 +60,7 @@ public class KongObservabilityInitializer implements ApplicationRunner {
                     payload.put("name", "http-log");
                     
                     Map<String, Object> config = new HashMap<>();
-                    config.put("http_endpoint", "http://host.docker.internal:8080/api/internal/kong-logs");
+                    config.put("http_endpoint", httpLogCallbackUrl);
                     config.put("method", "POST");
                     config.put("timeout", 10000);
                     config.put("keepalive", 60000);
