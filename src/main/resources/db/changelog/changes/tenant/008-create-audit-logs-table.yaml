@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-create-audit-logs-table
+      author: system
+      changes:
+        - createTable:
+            tableName: audit_logs
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: action
+                  type: VARCHAR(50)
+              - column:
+                  name: entity_name
+                  type: VARCHAR(50)
+              - column:
+                  name: entity_id
+                  type: VARCHAR(255)
+              - column:
+                  name: actor
+                  type: VARCHAR(255)
+              - column:
+                  name: old_value
+                  type: TEXT
+              - column:
+                  name: new_value
+                  type: TEXT
+              - column:
+                  name: ip_address
+                  type: VARCHAR(45)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+        - createIndex:
+            tableName: audit_logs
+            indexName: idx_audit_logs_created_at
+            columns:
+              - column:
+                  name: created_at

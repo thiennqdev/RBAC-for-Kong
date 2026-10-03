@@ -1,0 +1,222 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-migrate-permissions-to-resource-action
+      author: system
+      comment: Migrate flat permissions to RESOURCE_ACTION naming convention for permission matrix UI
+      changes:
+        # 1. Clear existing role_permissions mappings
+        - delete:
+            tableName: role_permissions
+
+        # 2. Delete old permissions
+        - delete:
+            tableName: permissions
+
+        # 3. Seed new RESOURCE_ACTION permissions (6 resources × 4 actions = 24)
+        # --- User Management ---
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: USER_READ }
+              - column: { name: description, value: "View users and user details" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: USER_WRITE }
+              - column: { name: description, value: "Edit user information" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: USER_CREATE }
+              - column: { name: description, value: "Create new users" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: USER_DELETE }
+              - column: { name: description, value: "Delete users" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # --- Template Management ---
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: TEMPLATE_READ }
+              - column: { name: description, value: "View notification templates" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: TEMPLATE_WRITE }
+              - column: { name: description, value: "Edit notification templates" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: TEMPLATE_CREATE }
+              - column: { name: description, value: "Create notification templates" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: TEMPLATE_DELETE }
+              - column: { name: description, value: "Delete notification templates" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # --- Config Management ---
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: CONFIG_READ }
+              - column: { name: description, value: "View project configuration and providers" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: CONFIG_WRITE }
+              - column: { name: description, value: "Edit project configuration" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: CONFIG_CREATE }
+              - column: { name: description, value: "Create new configuration entries" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: CONFIG_DELETE }
+              - column: { name: description, value: "Delete configuration entries" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # --- Notification ---
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: NOTIFICATION_READ }
+              - column: { name: description, value: "View notification history" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: NOTIFICATION_WRITE }
+              - column: { name: description, value: "Edit notifications" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: NOTIFICATION_CREATE }
+              - column: { name: description, value: "Send and create notifications" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: NOTIFICATION_DELETE }
+              - column: { name: description, value: "Delete notifications" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # --- Log Management ---
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: LOG_READ }
+              - column: { name: description, value: "View notification logs and audit trail" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: LOG_WRITE }
+              - column: { name: description, value: "Edit log entries" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: LOG_CREATE }
+              - column: { name: description, value: "Create log entries" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: LOG_DELETE }
+              - column: { name: description, value: "Delete log entries" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # --- Member Management ---
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: MEMBER_READ }
+              - column: { name: description, value: "View project members" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: MEMBER_WRITE }
+              - column: { name: description, value: "Edit project member roles" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: MEMBER_CREATE }
+              - column: { name: description, value: "Add new project members" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: MEMBER_DELETE }
+              - column: { name: description, value: "Remove project members" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # 4. Re-seed role_permissions
+        # PROJECT_ADMIN -> all 24 permissions
+        - sql:
+            sql: >
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'PROJECT_ADMIN'
+
+        # DEVELOPER -> all except MEMBER_* (20 permissions)
+        - sql:
+            sql: >
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'DEVELOPER' AND p.permission_name NOT LIKE 'MEMBER_%'
+
+        # VIEWER -> only READ permissions (6 permissions)
+        - sql:
+            sql: >
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'VIEWER' AND p.permission_name LIKE '%_READ'
+
+      rollback:
+        - delete:
+            tableName: role_permissions
+        - delete:
+            tableName: permissions

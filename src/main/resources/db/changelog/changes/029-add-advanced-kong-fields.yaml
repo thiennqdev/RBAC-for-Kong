@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: 029-add-advanced-kong-fields
+      author: system
+      comment: Add advanced Kong configuration fields to Kong entities
+      changes:
+        - sql:
+            sql: >
+              ALTER TABLE kong_services 
+              ADD COLUMN retries INT,
+              ADD COLUMN connect_timeout INT,
+              ADD COLUMN write_timeout INT,
+              ADD COLUMN read_timeout INT,
+              ADD COLUMN client_certificate VARCHAR(36),
+              ADD COLUMN tls_verify BOOLEAN,
+              ADD COLUMN tls_verify_depth INT,
+              ADD COLUMN ca_certificates JSONB;
+
+              ALTER TABLE kong_routes
+              ADD COLUMN hosts JSONB,
+              ADD COLUMN headers JSONB,
+              ADD COLUMN https_redirect_status INT,
+              ADD COLUMN regex_priority INT,
+              ADD COLUMN path_handling VARCHAR(20),
+              ADD COLUMN request_buffering BOOLEAN,
+              ADD COLUMN response_buffering BOOLEAN,
+              ADD COLUMN snis JSONB,
+              ADD COLUMN sources JSONB,
+              ADD COLUMN destinations JSONB,
+              ADD COLUMN tags JSONB;
+
+              ALTER TABLE kong_upstreams
+              ADD COLUMN hash_on VARCHAR(50),
+              ADD COLUMN hash_fallback VARCHAR(50),
+              ADD COLUMN hash_on_header VARCHAR(100),
+              ADD COLUMN hash_fallback_header VARCHAR(100),
+              ADD COLUMN hash_on_cookie VARCHAR(100),
+              ADD COLUMN hash_on_cookie_path VARCHAR(200),
+              ADD COLUMN hash_on_query_arg VARCHAR(100),
+              ADD COLUMN hash_fallback_query_arg VARCHAR(100),
+              ADD COLUMN hash_on_uri_capture VARCHAR(100),
+              ADD COLUMN hash_fallback_uri_capture VARCHAR(100),
+              ADD COLUMN healthchecks JSONB,
+              ADD COLUMN host_header VARCHAR(200),
+              ADD COLUMN client_certificate VARCHAR(36),
+              ADD COLUMN use_srv_name BOOLEAN,
+              ADD COLUMN tags JSONB;
+
+              ALTER TABLE kong_targets
+              ADD COLUMN tags JSONB;

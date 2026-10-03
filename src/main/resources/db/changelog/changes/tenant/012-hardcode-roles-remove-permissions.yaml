@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: tenant-012-hardcode-roles-remove-permissions
+      author: system
+      comment: Drop dynamic permissions tables from tenant schema
+      changes:
+        - sql:
+            sql: >
+              DROP TABLE IF EXISTS role_permissions CASCADE;
+              DROP TABLE IF EXISTS permissions CASCADE;
+              DROP TABLE IF EXISTS resource_actions CASCADE;
+              DROP TABLE IF EXISTS resources CASCADE;
+              DROP TABLE IF EXISTS roles CASCADE;

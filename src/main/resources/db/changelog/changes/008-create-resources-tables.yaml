@@ -1,0 +1,305 @@
+databaseChangeLog:
+  # ============================================================
+  # 0. Clean up any stale tables from Hibernate auto-DDL
+  # ============================================================
+  - changeSet:
+      id: 013-cleanup-stale-resource-tables
+      author: system
+      comment: Drop any stale resource tables that may have been auto-created by Hibernate with wrong schema
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: resources
+      changes:
+        - sql:
+            sql: >
+              ALTER TABLE permissions DROP COLUMN IF EXISTS resource_action_id;
+              DROP TABLE IF EXISTS resource_actions CASCADE;
+              DROP TABLE IF EXISTS resources CASCADE;
+      rollback:
+        - sql:
+            sql: "SELECT 1"
+
+  # ============================================================
+  # 1. Create 'resources' table
+  # ============================================================
+  - changeSet:
+      id: 014-create-resources-table
+      author: system
+      comment: Create resources table for dynamic resource management
+      changes:
+        - createTable:
+            tableName: resources
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: resource_key
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: label
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_by
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_by
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: resources
+            columnNames: resource_key
+            constraintName: uk_resources_resource_key
+      rollback:
+        - dropTable:
+            tableName: resources
+
+  # ============================================================
+  # 2. Create 'resource_actions' table
+  # ============================================================
+  - changeSet:
+      id: 015-create-resource-actions-table
+      author: system
+      comment: Create resource_actions table for dynamic action management per resource
+      changes:
+        - createTable:
+            tableName: resource_actions
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: resource_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: action_name
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: api_path
+                  type: VARCHAR(200)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: http_method
+                  type: VARCHAR(10)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: is_custom
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_by
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_by
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: resource_actions
+            baseColumnNames: resource_id
+            referencedTableName: resources
+            referencedColumnNames: id
+            constraintName: fk_resource_actions_resource
+            onDelete: CASCADE
+        - addUniqueConstraint:
+            tableName: resource_actions
+            columnNames: resource_id, action_name
+            constraintName: uk_resource_actions_resource_action
+      rollback:
+        - dropTable:
+            tableName: resource_actions
+
+  # ============================================================
+  # 3. Add 'resource_action_id' FK to 'permissions' table
+  # ============================================================
+  - changeSet:
+      id: 016-add-resource-action-id-to-permissions
+      author: system
+      comment: Add resource_action_id column to permissions for linking to dynamic resource actions
+      changes:
+        - addColumn:
+            tableName: permissions
+            columns:
+              - column:
+                  name: resource_action_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseTableName: permissions
+            baseColumnNames: resource_action_id
+            referencedTableName: resource_actions
+            referencedColumnNames: id
+            constraintName: fk_permissions_resource_action
+            onDelete: SET NULL
+      rollback:
+        - dropColumn:
+            tableName: permissions
+            columnName: resource_action_id
+
+  # ============================================================
+  # 4. Seed existing data into resources & resource_actions tables
+  # ============================================================
+  - changeSet:
+      id: 017-seed-resources-and-actions
+      author: system
+      comment: >
+        Migrate existing hardcoded resources from ResourceActionRegistry into DB.
+        Creates resources and their CRUD actions, then links existing permissions.
+      changes:
+        # --- Insert Resources ---
+        - insert:
+            tableName: resources
+            columns:
+              - column: { name: resource_key, value: USER }
+              - column: { name: label, value: "User Management" }
+              - column: { name: description, value: "Manage system users" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: resources
+            columns:
+              - column: { name: resource_key, value: PROJECT }
+              - column: { name: label, value: "Project Management" }
+              - column: { name: description, value: "Manage projects and tenants" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: resources
+            columns:
+              - column: { name: resource_key, value: TEMPLATE }
+              - column: { name: label, value: "Template Management" }
+              - column: { name: description, value: "Manage notification templates" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: resources
+            columns:
+              - column: { name: resource_key, value: CONFIG }
+              - column: { name: label, value: "Provider Management" }
+              - column: { name: description, value: "Manage provider integrations and configuration" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: resources
+            columns:
+              - column: { name: resource_key, value: NOTIFICATION }
+              - column: { name: label, value: "Notification" }
+              - column: { name: description, value: "Manage notifications" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: resources
+            columns:
+              - column: { name: resource_key, value: LOG }
+              - column: { name: label, value: "Log Management" }
+              - column: { name: description, value: "Manage notification logs and audit trail" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: resources
+            columns:
+              - column: { name: resource_key, value: MEMBER }
+              - column: { name: label, value: "Member Management" }
+              - column: { name: description, value: "Manage project members" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # --- Insert Resource Actions via SQL (for each resource, create CRUD actions) ---
+        - sql:
+            comment: "Insert CRUD actions for all resources and link existing permissions"
+            splitStatements: false
+            sql: |
+              DO $$
+              DECLARE
+                r RECORD;
+                crud_actions TEXT[] := ARRAY['READ', 'WRITE', 'CREATE', 'DELETE'];
+                crud_methods TEXT[] := ARRAY['GET', 'PUT', 'POST', 'DELETE'];
+                i INT;
+                v_action_id BIGINT;
+                v_perm_name TEXT;
+                v_api_path TEXT;
+              BEGIN
+                FOR r IN SELECT id, resource_key FROM resources LOOP
+                  FOR i IN 1..4 LOOP
+                    v_perm_name := r.resource_key || '_' || crud_actions[i];
+
+                    SELECT api_path INTO v_api_path FROM permissions WHERE permission_name = v_perm_name;
+
+                    INSERT INTO resource_actions (resource_id, action_name, api_path, http_method, is_custom, created_by, updated_by, created_at, updated_at)
+                    VALUES (r.id, crud_actions[i], v_api_path, crud_methods[i], false, 'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                    RETURNING id INTO v_action_id;
+
+                    UPDATE permissions SET resource_action_id = v_action_id WHERE permission_name = v_perm_name;
+                  END LOOP;
+                END LOOP;
+
+                INSERT INTO resource_actions (resource_id, action_name, api_path, http_method, is_custom, created_by, updated_by, created_at, updated_at)
+                SELECT pr.id, 'REACTIVATE', '/projects/*/reactivate', 'PATCH', true, 'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+                FROM resources pr WHERE pr.resource_key = 'PROJECT'
+                RETURNING id INTO v_action_id;
+
+                UPDATE permissions SET resource_action_id = v_action_id WHERE permission_name = 'PROJECT_REACTIVATE';
+              END $$;
+
+      rollback:
+        - sql:
+            sql: >
+              UPDATE permissions SET resource_action_id = NULL;
+              DELETE FROM resource_actions;
+              DELETE FROM resources;

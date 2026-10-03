@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 024-add-route-status
+      author: system
+      comment: Add status column to kong_routes
+      changes:
+        - addColumn:
+            tableName: kong_routes
+            columns:
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: DRAFT
+                  constraints:
+                    nullable: false

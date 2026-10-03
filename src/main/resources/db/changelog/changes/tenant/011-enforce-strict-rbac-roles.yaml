@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: tenant-011-enforce-strict-rbac-roles
+      author: system
+      comment: Enforce strict permissions for PROJECT_ADMIN, MAINTAINER, and DEVELOPER
+      changes:
+        - sql:
+            sql: >
+              -- Ensure roles exist and are named correctly. 
+              INSERT INTO roles (role_name, description, created_by, updated_by, created_at, updated_at)
+              SELECT 'PROJECT_ADMIN', 'Full access to project and Kong configs', 'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+              WHERE NOT EXISTS (SELECT 1 FROM roles WHERE role_name = 'PROJECT_ADMIN');
+              
+              INSERT INTO roles (role_name, description, created_by, updated_by, created_at, updated_at)
+              SELECT 'MAINTAINER', 'Operational access: CRUD Kong configs', 'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+              WHERE NOT EXISTS (SELECT 1 FROM roles WHERE role_name = 'MAINTAINER');
+              
+              INSERT INTO roles (role_name, description, created_by, updated_by, created_at, updated_at)
+              SELECT 'DEVELOPER', 'Read-only access to project and configs', 'system', 'system', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+              WHERE NOT EXISTS (SELECT 1 FROM roles WHERE role_name = 'DEVELOPER');
+
+              -- Clear existing permissions for these roles
+              DELETE FROM role_permissions 
+              WHERE role_id IN (SELECT id FROM roles WHERE role_name IN ('PROJECT_ADMIN', 'MAINTAINER', 'DEVELOPER'));
+
+              -- PROJECT_ADMIN gets everything
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'PROJECT_ADMIN';
+
+              -- MAINTAINER gets all READ and KONG CRUD
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'MAINTAINER' AND (p.permission_name LIKE '%_READ' OR p.permission_name LIKE 'KONG_%');
+
+              -- DEVELOPER gets only READ
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'DEVELOPER' AND p.permission_name LIKE '%_READ';

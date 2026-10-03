@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 013-grant-project-permissions-to-project-admin
+      author: system
+      comment: >
+        Grant PROJECT_READ and PROJECT_WRITE permissions to PROJECT_ADMIN role
+        so that Tenant Admins can view and edit their assigned projects.
+      changes:
+        - sql:
+            sql: >
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'PROJECT_ADMIN'
+                AND p.permission_name IN ('PROJECT_READ', 'PROJECT_WRITE')
+                AND NOT EXISTS (
+                  SELECT 1 FROM role_permissions rp
+                  WHERE rp.role_id = r.id AND rp.permission_id = p.id
+                );
+
+      rollback:
+        - sql:
+            sql: >
+              DELETE FROM role_permissions
+              WHERE role_id IN (SELECT id FROM roles WHERE role_name = 'PROJECT_ADMIN')
+                AND permission_id IN (SELECT id FROM permissions WHERE permission_name IN ('PROJECT_READ', 'PROJECT_WRITE'));

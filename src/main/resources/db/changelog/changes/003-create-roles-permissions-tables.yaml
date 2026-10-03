@@ -1,0 +1,252 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-create-roles-table
+      author: system
+      comment: Create roles table for dynamic RBAC
+      changes:
+        - createTable:
+            tableName: roles
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: role_name
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_by
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_by
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: roles
+            columnNames: role_name
+            constraintName: uk_roles_role_name
+      rollback:
+        - dropTable:
+            tableName: roles
+
+  - changeSet:
+      id: 006-create-permissions-table
+      author: system
+      comment: Create permissions table
+      changes:
+        - createTable:
+            tableName: permissions
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: permission_name
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_by
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_by
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: permissions
+            columnNames: permission_name
+            constraintName: uk_permissions_permission_name
+      rollback:
+        - dropTable:
+            tableName: permissions
+
+  - changeSet:
+      id: 007-create-role-permissions-table
+      author: system
+      comment: Create role_permissions join table
+      changes:
+        - createTable:
+            tableName: role_permissions
+            columns:
+              - column:
+                  name: role_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: permission_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: role_permissions
+            columnNames: role_id, permission_id
+            constraintName: pk_role_permissions
+        - addForeignKeyConstraint:
+            baseTableName: role_permissions
+            baseColumnNames: role_id
+            referencedTableName: roles
+            referencedColumnNames: id
+            constraintName: fk_role_permissions_role
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: role_permissions
+            baseColumnNames: permission_id
+            referencedTableName: permissions
+            referencedColumnNames: id
+            constraintName: fk_role_permissions_permission
+            onDelete: CASCADE
+      rollback:
+        - dropTable:
+            tableName: role_permissions
+
+  - changeSet:
+      id: 008-seed-permissions
+      author: system
+      comment: Seed default permissions
+      changes:
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: MANAGE_MEMBERS }
+              - column: { name: description, value: "Manage project members" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: MANAGE_CONFIG }
+              - column: { name: description, value: "Manage project configuration and providers" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: MANAGE_TEMPLATES }
+              - column: { name: description, value: "Create, edit, delete notification templates" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: VIEW_TEMPLATES }
+              - column: { name: description, value: "View notification templates (read-only)" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: SEND_NOTIFICATIONS }
+              - column: { name: description, value: "Send notifications" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: VIEW_LOGS }
+              - column: { name: description, value: "View notification history and logs" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+      rollback:
+        - delete:
+            tableName: permissions
+
+  - changeSet:
+      id: 009-seed-roles
+      author: system
+      comment: Seed default roles with permission mappings
+      changes:
+        # Roles
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: role_name, value: PROJECT_ADMIN }
+              - column: { name: description, value: "Full access within a project: manage members, config, templates, and logs" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: role_name, value: DEVELOPER }
+              - column: { name: description, value: "Operational access: manage templates, config, send notifications, view logs" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: roles
+            columns:
+              - column: { name: role_name, value: VIEWER }
+              - column: { name: description, value: "Read-only access: view templates and logs" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        # PROJECT_ADMIN -> all 6 permissions
+        - sql:
+            sql: >
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'PROJECT_ADMIN'
+        # DEVELOPER -> 5 permissions (all except MANAGE_MEMBERS)
+        - sql:
+            sql: >
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'DEVELOPER' AND p.permission_name != 'MANAGE_MEMBERS'
+        # VIEWER -> VIEW_TEMPLATES, VIEW_LOGS
+        - sql:
+            sql: >
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'VIEWER' AND p.permission_name IN ('VIEW_TEMPLATES', 'VIEW_LOGS')
+      rollback:
+        - delete:
+            tableName: role_permissions
+        - delete:
+            tableName: roles

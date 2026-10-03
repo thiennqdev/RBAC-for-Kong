@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 019-update-role-permissions-feedback
+      author: system
+      comment: Rename roles to MAINTAINER/DEVELOPER and update Kong permissions
+      changes:
+        - sql:
+            sql: >
+              UPDATE roles SET role_name = 'MAINTAINER', description = 'Operational access: CRUD Kong configs, manage templates' WHERE role_name = 'DEVELOPER';
+              
+              UPDATE roles SET role_name = 'DEVELOPER', description = 'Read-only access: view Kong configs, templates and logs' WHERE role_name = 'VIEWER';
+              
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'MAINTAINER' AND p.permission_name LIKE 'KONG_%'
+              AND NOT EXISTS (SELECT 1 FROM role_permissions rp WHERE rp.role_id = r.id AND rp.permission_id = p.id);

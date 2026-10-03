@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 023-hardcode-roles-remove-permissions
+      author: system
+      comment: Drop dynamic permissions tables and migrate user_project_roles to use role_name
+      changes:
+        - sql:
+            sql: >
+              ALTER TABLE user_project_roles ADD COLUMN role_name VARCHAR(50);
+              
+              UPDATE user_project_roles SET role_name = 'PROJECT_ADMIN' WHERE role_id = 1;
+              UPDATE user_project_roles SET role_name = 'MAINTAINER' WHERE role_id IN (2, 4);
+              UPDATE user_project_roles SET role_name = 'DEVELOPER' WHERE role_id = 3;
+              UPDATE user_project_roles SET role_name = 'DEVELOPER' WHERE role_name IS NULL;
+              
+              ALTER TABLE user_project_roles ALTER COLUMN role_name SET NOT NULL;
+              ALTER TABLE user_project_roles DROP COLUMN role_id;
+
+              DROP TABLE IF EXISTS role_permissions CASCADE;
+              DROP TABLE IF EXISTS permissions CASCADE;
+              DROP TABLE IF EXISTS resource_actions CASCADE;
+              DROP TABLE IF EXISTS resources CASCADE;
+              DROP TABLE IF EXISTS roles CASCADE;

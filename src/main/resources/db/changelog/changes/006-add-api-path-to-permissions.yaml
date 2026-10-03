@@ -1,0 +1,156 @@
+databaseChangeLog:
+  - changeSet:
+      id: 011-add-api-path-to-permissions
+      author: system
+      validCheckSum: ANY
+      comment: Add api_path and http_method columns to permissions for dynamic URL-based authorization
+      changes:
+        # 1. Add new columns
+        - addColumn:
+            tableName: permissions
+            columns:
+              - column:
+                  name: api_path
+                  type: varchar(200)
+              - column:
+                  name: http_method
+                  type: varchar(10)
+
+        # 2. Update project-scoped permissions with api_path + http_method
+        # --- Template Management ---
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/templates/**" }
+              - column: { name: http_method, value: "GET" }
+            where: permission_name = 'TEMPLATE_READ'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/templates/**" }
+              - column: { name: http_method, value: "PUT" }
+            where: permission_name = 'TEMPLATE_WRITE'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/templates" }
+              - column: { name: http_method, value: "POST" }
+            where: permission_name = 'TEMPLATE_CREATE'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/templates/**" }
+              - column: { name: http_method, value: "DELETE" }
+            where: permission_name = 'TEMPLATE_DELETE'
+
+        # --- Provider Management ---
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/providers/**" }
+              - column: { name: http_method, value: "GET" }
+            where: permission_name = 'CONFIG_READ'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/providers/**" }
+              - column: { name: http_method, value: "PUT" }
+            where: permission_name = 'CONFIG_WRITE'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/providers" }
+              - column: { name: http_method, value: "POST" }
+            where: permission_name = 'CONFIG_CREATE'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/providers/**" }
+              - column: { name: http_method, value: "DELETE" }
+            where: permission_name = 'CONFIG_DELETE'
+
+        # --- Notification ---
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/notifications/**" }
+              - column: { name: http_method, value: "GET" }
+            where: permission_name = 'NOTIFICATION_READ'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/notifications/**" }
+              - column: { name: http_method, value: "PUT" }
+            where: permission_name = 'NOTIFICATION_WRITE'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/notifications" }
+              - column: { name: http_method, value: "POST" }
+            where: permission_name = 'NOTIFICATION_CREATE'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/notifications/**" }
+              - column: { name: http_method, value: "DELETE" }
+            where: permission_name = 'NOTIFICATION_DELETE'
+
+        # --- Log Management ---
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/logs/**" }
+              - column: { name: http_method, value: "GET" }
+            where: permission_name = 'LOG_READ'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/logs/**" }
+              - column: { name: http_method, value: "PUT" }
+            where: permission_name = 'LOG_WRITE'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/logs" }
+              - column: { name: http_method, value: "POST" }
+            where: permission_name = 'LOG_CREATE'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/logs/**" }
+              - column: { name: http_method, value: "DELETE" }
+            where: permission_name = 'LOG_DELETE'
+
+        # --- Member Management ---
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/members/**" }
+              - column: { name: http_method, value: "GET" }
+            where: permission_name = 'MEMBER_READ'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/members/**" }
+              - column: { name: http_method, value: "PUT" }
+            where: permission_name = 'MEMBER_WRITE'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/members" }
+              - column: { name: http_method, value: "POST" }
+            where: permission_name = 'MEMBER_CREATE'
+        - update:
+            tableName: permissions
+            columns:
+              - column: { name: api_path, value: "/projects/*/members/**" }
+              - column: { name: http_method, value: "DELETE" }
+            where: permission_name = 'MEMBER_DELETE'
+
+      rollback:
+        - dropColumn:
+            tableName: permissions
+            columnName: api_path
+        - dropColumn:
+            tableName: permissions
+            columnName: http_method

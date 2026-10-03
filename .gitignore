@@ -1,0 +1,67 @@
+# ==========================================
+# Environment Variables & Local Secrets
+# ==========================================
+*.env
+*.env.*
+!.env.example
+*.pem
+*.key
+*.jks
+*.p12
+
+# ==========================================
+# Java & Spring Boot
+# ==========================================
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.class
+*.jar
+*.war
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# ==========================================
+# Node.js & Frontend
+# ==========================================
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.vite/
+**/.vite/
+package-lock.json
+
+# ==========================================
+# IDEs & System Configuration
+# ==========================================
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.kiro/
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# ==========================================
+# Project-specific Temporary & Dump Files
+# ==========================================
+Báo cáo*.md
+plugins.json
+plugins_out.json
+*.backup.*
+*.bak
+*.tmp
+*.log

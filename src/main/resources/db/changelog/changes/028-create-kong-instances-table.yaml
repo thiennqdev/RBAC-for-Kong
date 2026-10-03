@@ -1,0 +1,194 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-kong-instances-table
+      author: antigravity
+      changes:
+        - createTable:
+            tableName: kong_instances
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: code
+                  type: VARCHAR(50)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: admin_url
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: "ACTIVE"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: created_by
+                  type: VARCHAR(50)
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: updated_by
+                  type: VARCHAR(50)
+        
+        # Insert a default Kong instance for backward compatibility
+        - insert:
+            tableName: kong_instances
+            columns:
+              - column:
+                  name: code
+                  value: "default"
+              - column:
+                  name: name
+                  value: "Default Kong"
+              - column:
+                  name: admin_url
+                  value: "http://localhost:8001"
+              - column:
+                  name: description
+                  value: "Default Kong Instance from migration"
+
+        # Add kong_instance_id to kong tables (nullable first)
+        - addColumn:
+            tableName: kong_services
+            columns:
+              - column:
+                  name: kong_instance_id
+                  type: BIGINT
+        - addColumn:
+            tableName: kong_routes
+            columns:
+              - column:
+                  name: kong_instance_id
+                  type: BIGINT
+        - addColumn:
+            tableName: kong_upstreams
+            columns:
+              - column:
+                  name: kong_instance_id
+                  type: BIGINT
+        - addColumn:
+            tableName: kong_plugins
+            columns:
+              - column:
+                  name: kong_instance_id
+                  type: BIGINT
+        - addColumn:
+            tableName: kong_targets
+            columns:
+              - column:
+                  name: kong_instance_id
+                  type: BIGINT
+
+        # Update existing records to point to the default Kong instance
+        - update:
+            tableName: kong_services
+            columns:
+              - column:
+                  name: kong_instance_id
+                  valueNumeric: "(SELECT id FROM kong_instances WHERE code = 'default')"
+        - update:
+            tableName: kong_routes
+            columns:
+              - column:
+                  name: kong_instance_id
+                  valueNumeric: "(SELECT id FROM kong_instances WHERE code = 'default')"
+        - update:
+            tableName: kong_upstreams
+            columns:
+              - column:
+                  name: kong_instance_id
+                  valueNumeric: "(SELECT id FROM kong_instances WHERE code = 'default')"
+        - update:
+            tableName: kong_plugins
+            columns:
+              - column:
+                  name: kong_instance_id
+                  valueNumeric: "(SELECT id FROM kong_instances WHERE code = 'default')"
+        - update:
+            tableName: kong_targets
+            columns:
+              - column:
+                  name: kong_instance_id
+                  valueNumeric: "(SELECT id FROM kong_instances WHERE code = 'default')"
+
+        # Add Foreign Key constraints
+        - addForeignKeyConstraint:
+            baseTableName: kong_services
+            baseColumnNames: kong_instance_id
+            constraintName: fk_kong_service_instance
+            referencedTableName: kong_instances
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: kong_routes
+            baseColumnNames: kong_instance_id
+            constraintName: fk_kong_route_instance
+            referencedTableName: kong_instances
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: kong_upstreams
+            baseColumnNames: kong_instance_id
+            constraintName: fk_kong_upstream_instance
+            referencedTableName: kong_instances
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: kong_plugins
+            baseColumnNames: kong_instance_id
+            constraintName: fk_kong_plugin_instance
+            referencedTableName: kong_instances
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: kong_targets
+            baseColumnNames: kong_instance_id
+            constraintName: fk_kong_target_instance
+            referencedTableName: kong_instances
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        # Make the columns non-nullable (except if there are empty tables, this is fine)
+        - addNotNullConstraint:
+            tableName: kong_services
+            columnName: kong_instance_id
+            columnDataType: BIGINT
+        - addNotNullConstraint:
+            tableName: kong_routes
+            columnName: kong_instance_id
+            columnDataType: BIGINT
+        - addNotNullConstraint:
+            tableName: kong_upstreams
+            columnName: kong_instance_id
+            columnDataType: BIGINT
+        - addNotNullConstraint:
+            tableName: kong_plugins
+            columnName: kong_instance_id
+            columnDataType: BIGINT
+        - addNotNullConstraint:
+            tableName: kong_targets
+            columnName: kong_instance_id
+            columnDataType: BIGINT

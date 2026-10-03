@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  # 1. Cơ sở dữ liệu Postgres (Bảo mật: Đọc mật khẩu từ Docker Secret)
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: rbac_management
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      TZ: Asia/Ho_Chi_Minh
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - rbac_net
+    secrets:
+      - db_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+  # 2. Redis Cache (Quản trị: Cấu hình qua Docker Config)
+  redis:
+    image: redis:7-alpine
+    command: redis-server /usr/local/etc/redis/redis.conf --requirepass redis123
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - rbac_net
+    configs:
+      - source: redis_config
+        target: /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redis123", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+  # 3. Web Service mẫu (Stateless: Minh họa Cân bằng tải, Rolling Update & Rollback)
+  web-demo:
+    image: traefik/whoami:latest
+    ports:
+      - "8088:80"
+    networks:
+      - rbac_net
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 64M
+      update_config:
+        parallelism: 1
+        delay: 5s
+        order: start-first
+        failure_action: rollback
+        monitor: 5s
+      rollback_config:
+        parallelism: 1
+        delay: 5s
+        order: stop-first
+
+  # 4. Giao diện trực quan Swarm Visualizer
+  visualizer:
+    image: dockersamples/visualizer:latest
+    ports:
+      - "8888:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - rbac_net
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  rbac_net:
+    driver: overlay
+
+secrets:
+  db_password:
+    external: true
+
+configs:
+  redis_config:
+    external: true

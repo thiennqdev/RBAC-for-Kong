@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: tenant-009-seed-log-permissions
+      author: system
+      comment: Seed permissions for observability logs in tenant schema
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM permissions WHERE permission_name = 'LOGS_READ'
+      changes:
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: LOGS_READ }
+              - column: { name: description, value: "View gateway and audit logs" }
+              - column: { name: api_path, value: "/projects/*/*logs/**" }
+              - column: { name: http_method, value: "*" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # PROJECT_ADMIN -> LOGS_READ
+        - sql:
+            sql: >
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'PROJECT_ADMIN' AND p.permission_name = 'LOGS_READ'
+              AND NOT EXISTS (SELECT 1 FROM role_permissions rp WHERE rp.role_id = r.id AND rp.permission_id = p.id);

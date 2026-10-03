@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: 019-fix-provider-config-api-path
+      author: system
+      comment: Make provider permissions match URLs with or without API prefix
+      changes:
+        - update:
+            tableName: permissions
+            columns:
+              - column:
+                  name: api_path
+                  value: "/**/projects/*/providers/**"
+            where: permission_name in ('CONFIG_READ', 'CONFIG_WRITE', 'CONFIG_CREATE', 'CONFIG_DELETE')
+      rollback:
+        - update:
+            tableName: permissions
+            columns:
+              - column:
+                  name: api_path
+                  value: "/projects/*/providers/**"
+            where: permission_name in ('CONFIG_READ', 'CONFIG_WRITE', 'CONFIG_DELETE')
+        - update:
+            tableName: permissions
+            columns:
+              - column:
+                  name: api_path
+                  value: "/projects/*/providers"
+            where: permission_name = 'CONFIG_CREATE'

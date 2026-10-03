@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 025-add-upstream-healthchecks
+      author: antigravity
+      changes:
+        - addColumn:
+            tableName: kong_upstreams
+            columns:
+              - column:
+                  name: healthchecks_config
+                  type: text
+                  remarks: "Stores JSON configuration for healthchecks"

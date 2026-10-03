@@ -1,0 +1,106 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-create-user-project-roles-table
+      author: system
+      comment: Create user_project_roles table for scope-based RBAC
+      changes:
+        - createTable:
+            tableName: user_project_roles
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: project_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_by
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_by
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: user_project_roles
+            columnNames: user_id, project_id
+            constraintName: uk_user_project_roles_user_project
+        - addForeignKeyConstraint:
+            baseTableName: user_project_roles
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_user_project_roles_user
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: user_project_roles
+            baseColumnNames: project_id
+            referencedTableName: projects
+            referencedColumnNames: id
+            constraintName: fk_user_project_roles_project
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: user_project_roles
+            baseColumnNames: role_id
+            referencedTableName: roles
+            referencedColumnNames: id
+            constraintName: fk_user_project_roles_role
+            onDelete: RESTRICT
+      rollback:
+        - dropTable:
+            tableName: user_project_roles
+
+  - changeSet:
+      id: 011-add-user-project-roles-indexes
+      author: system
+      comment: Add indexes for user_project_roles lookup queries
+      changes:
+        - createIndex:
+            indexName: idx_upr_user_id
+            tableName: user_project_roles
+            columns:
+              - column:
+                  name: user_id
+        - createIndex:
+            indexName: idx_upr_project_id
+            tableName: user_project_roles
+            columns:
+              - column:
+                  name: project_id
+      rollback:
+        - dropIndex:
+            indexName: idx_upr_user_id
+            tableName: user_project_roles
+        - dropIndex:
+            indexName: idx_upr_project_id
+            tableName: user_project_roles

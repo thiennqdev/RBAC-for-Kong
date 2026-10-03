@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: 021-delete-provider-config-resource
+      author: system
+      comment: Delete PROVIDER_CONFIG resource and associated permissions from global schema
+      changes:
+        - sql:
+            comment: "Delete CONFIG resource and its permissions"
+            splitStatements: false
+            sql: |
+              DO $$
+              DECLARE
+                v_resource_id BIGINT;
+              BEGIN
+                SELECT id INTO v_resource_id FROM resources WHERE resource_key = 'CONFIG';
+                
+                IF v_resource_id IS NOT NULL THEN
+                  DELETE FROM permissions 
+                  WHERE resource_action_id IN (
+                    SELECT id FROM resource_actions WHERE resource_id = v_resource_id
+                  );
+                  DELETE FROM resource_actions WHERE resource_id = v_resource_id;
+                  DELETE FROM resources WHERE id = v_resource_id;
+                END IF;
+
+                DELETE FROM permissions WHERE permission_name = 'MANAGE_CONFIG';
+                DELETE FROM permissions WHERE permission_name LIKE 'CONFIG_%';
+              END $$;

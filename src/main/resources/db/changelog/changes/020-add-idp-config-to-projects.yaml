@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: 020-add-idp-config-to-projects
+      author: rbac-service
+      comment: "Add Identity Provider (IdP) configuration columns to projects table for dynamic JWT authentication"
+      changes:
+        - addColumn:
+            schemaName: public
+            tableName: projects
+            columns:
+              - column:
+                  name: idp_type
+                  type: VARCHAR(30)
+                  defaultValue: "DEFAULT"
+                  constraints:
+                    nullable: false
+                  remarks: "Identity Provider type: DEFAULT (uses system Keycloak realm), CUSTOM_KEYCLOAK, AUTH0, CUSTOM_OIDC"
+              - column:
+                  name: idp_issuer_url
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: true
+                  remarks: "Custom IdP issuer URL, e.g. https://auth.company.com/realms/my-realm"
+              - column:
+                  name: idp_jwks_url
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: true
+                  remarks: "Custom IdP JWKS endpoint URL for fetching public keys"

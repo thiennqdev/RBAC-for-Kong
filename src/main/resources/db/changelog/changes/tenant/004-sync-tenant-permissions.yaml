@@ -1,0 +1,254 @@
+databaseChangeLog:
+  - changeSet:
+      id: tenant-004-sync-tenant-permissions
+      author: system
+      comment: Sync tenant permissions with global permissions (add api_path and http_method)
+      changes:
+        # 1. Clear existing role_permissions and permissions
+        - delete:
+            tableName: role_permissions
+        - delete:
+            tableName: permissions
+
+        # 2. Re-seed permissions with api_path and http_method
+        # --- User Management ---
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: USER_READ }
+              - column: { name: description, value: "View users and user details" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: USER_WRITE }
+              - column: { name: description, value: "Edit user information" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: USER_CREATE }
+              - column: { name: description, value: "Create new users" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: USER_DELETE }
+              - column: { name: description, value: "Delete users" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # --- Template Management ---
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: TEMPLATE_READ }
+              - column: { name: description, value: "View notification templates" }
+              - column: { name: api_path, value: "/projects/*/templates/**" }
+              - column: { name: http_method, value: "GET" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: TEMPLATE_WRITE }
+              - column: { name: description, value: "Edit notification templates" }
+              - column: { name: api_path, value: "/projects/*/templates/**" }
+              - column: { name: http_method, value: "PUT" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: TEMPLATE_CREATE }
+              - column: { name: description, value: "Create notification templates" }
+              - column: { name: api_path, value: "/projects/*/templates" }
+              - column: { name: http_method, value: "POST" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: TEMPLATE_DELETE }
+              - column: { name: description, value: "Delete notification templates" }
+              - column: { name: api_path, value: "/projects/*/templates/**" }
+              - column: { name: http_method, value: "DELETE" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # --- Config Management ---
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: CONFIG_READ }
+              - column: { name: description, value: "View project configuration and providers" }
+              - column: { name: api_path, value: "/**/projects/*/providers/**" }
+              - column: { name: http_method, value: "GET" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: CONFIG_WRITE }
+              - column: { name: description, value: "Edit project configuration" }
+              - column: { name: api_path, value: "/**/projects/*/providers/**" }
+              - column: { name: http_method, value: "*" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: CONFIG_CREATE }
+              - column: { name: description, value: "Create new configuration entries" }
+              - column: { name: api_path, value: "/**/projects/*/providers/**" }
+              - column: { name: http_method, value: "POST" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: CONFIG_DELETE }
+              - column: { name: description, value: "Delete configuration entries" }
+              - column: { name: api_path, value: "/**/projects/*/providers/**" }
+              - column: { name: http_method, value: "DELETE" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # --- Notification ---
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: NOTIFICATION_READ }
+              - column: { name: description, value: "View notification history" }
+              - column: { name: api_path, value: "/projects/*/notifications/**" }
+              - column: { name: http_method, value: "GET" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: NOTIFICATION_WRITE }
+              - column: { name: description, value: "Edit notifications" }
+              - column: { name: api_path, value: "/projects/*/notifications/**" }
+              - column: { name: http_method, value: "PUT" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: NOTIFICATION_CREATE }
+              - column: { name: description, value: "Send and create notifications" }
+              - column: { name: api_path, value: "/projects/*/notifications" }
+              - column: { name: http_method, value: "POST" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: NOTIFICATION_DELETE }
+              - column: { name: description, value: "Delete notifications" }
+              - column: { name: api_path, value: "/projects/*/notifications/**" }
+              - column: { name: http_method, value: "DELETE" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # --- Log Management ---
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: LOG_READ }
+              - column: { name: description, value: "View notification logs and audit trail" }
+              - column: { name: api_path, value: "/projects/*/logs/**" }
+              - column: { name: http_method, value: "GET" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: LOG_WRITE }
+              - column: { name: description, value: "Edit log entries" }
+              - column: { name: api_path, value: "/projects/*/logs/**" }
+              - column: { name: http_method, value: "PUT" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: LOG_CREATE }
+              - column: { name: description, value: "Create log entries" }
+              - column: { name: api_path, value: "/projects/*/logs" }
+              - column: { name: http_method, value: "POST" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: LOG_DELETE }
+              - column: { name: description, value: "Delete log entries" }
+              - column: { name: api_path, value: "/projects/*/logs/**" }
+              - column: { name: http_method, value: "DELETE" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # --- Member Management ---
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: MEMBER_READ }
+              - column: { name: description, value: "View project members" }
+              - column: { name: api_path, value: "/projects/*/members/**" }
+              - column: { name: http_method, value: "GET" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: MEMBER_WRITE }
+              - column: { name: description, value: "Edit project member roles" }
+              - column: { name: api_path, value: "/projects/*/members/**" }
+              - column: { name: http_method, value: "PUT" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: MEMBER_CREATE }
+              - column: { name: description, value: "Add new project members" }
+              - column: { name: api_path, value: "/projects/*/members" }
+              - column: { name: http_method, value: "POST" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: MEMBER_DELETE }
+              - column: { name: description, value: "Remove project members" }
+              - column: { name: api_path, value: "/projects/*/members/**" }
+              - column: { name: http_method, value: "DELETE" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # 3. Re-seed role_permissions
+        # PROJECT_ADMIN -> all 24 permissions
+        - sql:
+            sql: >
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'PROJECT_ADMIN'
+
+        # DEVELOPER -> all except MEMBER_* (20 permissions)
+        - sql:
+            sql: >
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'DEVELOPER' AND p.permission_name NOT LIKE 'MEMBER_%'
+
+        # VIEWER -> only READ permissions (6 permissions)
+        - sql:
+            sql: >
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'VIEWER' AND p.permission_name LIKE '%_READ'

@@ -1,0 +1,210 @@
+# Liquibase YAML Template
+# Copy this file and rename to create new changesets
+
+databaseChangeLog:
+  # Example: Create table
+  - changeSet:
+      id: 001-create-example-table
+      author: developer-name
+      comment: Create example table with audit fields
+      changes:
+        - createTable:
+            tableName: example_table
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: enabled
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+              - column:
+                  name: updated_by
+                  type: VARCHAR(255)
+
+  # Example: Add index
+  - changeSet:
+      id: 002-add-index-example
+      author: developer-name
+      comment: Add index for better query performance
+      changes:
+        - createIndex:
+            indexName: idx_example_name
+            tableName: example_table
+            columns:
+              - column:
+                  name: name
+
+  # Example: Add foreign key
+  - changeSet:
+      id: 003-add-foreign-key-example
+      author: developer-name
+      comment: Add foreign key relationship
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: child_table
+            baseColumnNames: parent_id
+            constraintName: fk_child_parent
+            referencedTableName: parent_table
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+  # Example: Insert data
+  - changeSet:
+      id: 004-insert-seed-data
+      author: developer-name
+      comment: Insert initial seed data
+      changes:
+        - insert:
+            tableName: example_table
+            columns:
+              - column:
+                  name: name
+                  value: "Example 1"
+              - column:
+                  name: description
+                  value: "This is an example"
+              - column:
+                  name: enabled
+                  valueBoolean: true
+
+  # Example: Modify column
+  - changeSet:
+      id: 005-modify-column-example
+      author: developer-name
+      comment: Modify column type or constraints
+      changes:
+        - modifyDataType:
+            tableName: example_table
+            columnName: description
+            newDataType: VARCHAR(1000)
+
+  # Example: Add column
+  - changeSet:
+      id: 006-add-column-example
+      author: developer-name
+      comment: Add new column to existing table
+      changes:
+        - addColumn:
+            tableName: example_table
+            columns:
+              - column:
+                  name: new_field
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: true
+
+  # Example: Drop column
+  - changeSet:
+      id: 007-drop-column-example
+      author: developer-name
+      comment: Remove column from table
+      changes:
+        - dropColumn:
+            tableName: example_table
+            columnName: old_field
+
+  # Example: Rename column
+  - changeSet:
+      id: 008-rename-column-example
+      author: developer-name
+      comment: Rename column
+      changes:
+        - renameColumn:
+            tableName: example_table
+            oldColumnName: old_name
+            newColumnName: new_name
+            columnDataType: VARCHAR(255)
+
+  # Example: Custom SQL
+  - changeSet:
+      id: 009-custom-sql-example
+      author: developer-name
+      comment: Execute custom SQL
+      changes:
+        - sql:
+            sql: |
+              UPDATE example_table 
+              SET enabled = false 
+              WHERE created_at < NOW() - INTERVAL '1 year';
+
+  # Example: Rollback
+  - changeSet:
+      id: 010-with-rollback-example
+      author: developer-name
+      comment: Changeset with rollback support
+      changes:
+        - createTable:
+            tableName: temp_table
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+      rollback:
+        - dropTable:
+            tableName: temp_table
+
+  # Example: Preconditions
+  - changeSet:
+      id: 011-with-precondition-example
+      author: developer-name
+      comment: Only run if table doesn't exist
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                tableName: example_table
+      changes:
+        - createTable:
+            tableName: example_table
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+
+  # Example: Context-specific changeset
+  - changeSet:
+      id: 012-context-specific-example
+      author: developer-name
+      comment: Only run in specific contexts (dev, test, prod)
+      context: dev
+      changes:
+        - insert:
+            tableName: example_table
+            columns:
+              - column:
+                  name: name
+                  value: "Test Data"

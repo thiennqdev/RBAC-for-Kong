@@ -1,0 +1,29 @@
+databaseChangeLog:
+  # ============================================================
+  # Drop FK from user_project_roles.role_id -> public.roles
+  # because roles table is now in tenant schemas
+  # ============================================================
+  - changeSet:
+      id: 018-drop-upr-role-fk
+      author: system
+      comment: >
+        Drop FK constraint fk_user_project_roles_role because the roles table
+        has been moved to per-tenant schemas. role_id is now validated at the
+        service layer instead of via database FK.
+      preConditions:
+        - onFail: MARK_RAN
+        - foreignKeyConstraintExists:
+            foreignKeyName: fk_user_project_roles_role
+            foreignKeyTableName: user_project_roles
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: user_project_roles
+            constraintName: fk_user_project_roles_role
+      rollback:
+        - addForeignKeyConstraint:
+            baseTableName: user_project_roles
+            baseColumnNames: role_id
+            referencedTableName: roles
+            referencedColumnNames: id
+            constraintName: fk_user_project_roles_role
+            onDelete: RESTRICT

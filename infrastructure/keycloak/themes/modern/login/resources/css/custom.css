@@ -1,0 +1,89 @@
+/* Custom Modern Platform Login Theme - Centered Glassmorphism (Safe Layout) */
+
+/* 1. Main Background */
+.pf-v5-c-login {
+    background-color: transparent !important;
+    background-image: url('../img/bg.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+}
+
+/* Ensure PatternFly background doesn't overlay */
+.pf-v5-c-login::before, .pf-v5-c-login::after {
+    display: none !important;
+}
+
+/* Hide the raw Realm Name header */
+#kc-header {
+    display: none !important;
+}
+
+/* 2. Glassmorphism Card (Applied safely to the main card element) */
+.pf-v5-c-login__main {
+    background: rgba(255, 255, 255, 0.4) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* 3. Typography Adjustments */
+.pf-v5-c-title {
+    color: #111 !important;
+    font-weight: 800 !important;
+    text-shadow: 0 2px 8px rgba(255, 255, 255, 0.8) !important;
+}
+
+.pf-v5-c-form__label-text {
+    color: #111 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 1px 4px rgba(255, 255, 255, 0.8) !important;
+}
+
+/* 4. Input Fields (Safe styling without breaking flex/grid widths) */
+.pf-v5-c-form-control {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    color: #000 !important; /* Force solid black text */
+    --pf-v5-c-form-control--Color: #000 !important;
+    -webkit-text-fill-color: #000 !important; /* Fix for dark mode overriding text */
+}
+/* Ensure browser autofill also shows solid black text */
+.pf-v5-c-form-control:-webkit-autofill {
+    -webkit-text-fill-color: #000 !important;
+    -webkit-box-shadow: 0 0 0 1000px white inset !important;
+}
+.pf-v5-c-form-control:focus {
+    background-color: #fff !important;
+    border-color: #ee0033 !important;
+}
+
+/* Password Eye Icon Box */
+.pf-v5-c-button.pf-m-control {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    border-left: none !important;
+    color: #444 !important;
+}
+.pf-v5-c-button.pf-m-control:hover {
+    color: #ee0033 !important;
+    background-color: #fff !important;
+}
+
+/* 5. Primary Action Button */
+.pf-v5-c-button.pf-m-primary {
+    background: #ee0033 !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-weight: 700 !important;
+    font-size: 1.05rem !important;
+    transition: all 0.2s ease-in-out !important;
+}
+.pf-v5-c-button.pf-m-primary:hover {
+    background: #c40027 !important;
+    box-shadow: 0 4px 12px rgba(238, 0, 51, 0.4) !important;
+    transform: translateY(-1px) !important;
+}

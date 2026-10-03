@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 018-fix-provider-config-write-http-method
+      author: system
+      comment: Allow CONFIG_WRITE permission to cover all HTTP methods for provider management
+      changes:
+        - update:
+            tableName: permissions
+            columns:
+              - column:
+                  name: http_method
+                  value: "*"
+            where: permission_name = 'CONFIG_WRITE'
+      rollback:
+        - update:
+            tableName: permissions
+            columns:
+              - column:
+                  name: http_method
+                  value: "PUT"
+            where: permission_name = 'CONFIG_WRITE'

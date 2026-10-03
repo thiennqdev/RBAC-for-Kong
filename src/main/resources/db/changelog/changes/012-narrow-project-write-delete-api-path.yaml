@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 020-narrow-project-write-delete-api-path
+      author: system
+      comment: Limit PROJECT_WRITE and PROJECT_DELETE to project root URLs only (not child resources like providers/members)
+      changes:
+        - update:
+            tableName: permissions
+            columns:
+              - column:
+                  name: api_path
+                  value: "/projects/*"
+            where: permission_name in ('PROJECT_WRITE', 'PROJECT_DELETE')
+      rollback:
+        - update:
+            tableName: permissions
+            columns:
+              - column:
+                  name: api_path
+                  value: "/projects/**"
+            where: permission_name in ('PROJECT_WRITE', 'PROJECT_DELETE')

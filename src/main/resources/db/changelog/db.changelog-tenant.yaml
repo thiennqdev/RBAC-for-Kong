@@ -1,0 +1,35 @@
+databaseChangeLog:
+  # Tenant-specific tables that should be created in each tenant schema
+  # 
+  # IMPORTANT: This changelog should ONLY contain tables that belong to individual tenant schemas.
+  # Do NOT include global tables like 'projects' here - they belong in db.changelog-global.yaml
+  # 
+  # Currently empty - add tenant-specific changesets here as needed for future features like:
+  # - notifications table (per-tenant notification data)
+  # - templates table (per-tenant notification templates)  
+  # - user_preferences table (per-tenant user settings)
+  # 
+  - include:
+      file: db/changelog/changes/tenant/001-create-provider-integrations-table.yaml
+  - include:
+      file: db/changelog/changes/tenant/002-create-roles-permissions-tables.yaml
+  - include:
+      file: db/changelog/changes/tenant/003-create-resources-tables.yaml
+  - include:
+      file: db/changelog/changes/tenant/004-sync-tenant-permissions.yaml
+  - include:
+      file: db/changelog/changes/tenant/005-seed-kong-permissions.yaml
+  - include:
+      file: db/changelog/changes/tenant/006-drop-provider-integrations-table.yaml
+  # - include:
+  #     file: db/changelog/changes/tenant/007-create-gateway-logs-table.yaml
+  # - include:
+  #     file: db/changelog/changes/tenant/008-create-audit-logs-table.yaml
+  - include:
+      file: db/changelog/changes/tenant/009-seed-log-permissions.yaml
+  - include:
+      file: db/changelog/changes/tenant/010-seed-metrics-permissions.yaml
+  - include:
+      file: db/changelog/changes/tenant/011-enforce-strict-rbac-roles.yaml
+  - include:
+      file: db/changelog/changes/tenant/012-hardcode-roles-remove-permissions.yaml

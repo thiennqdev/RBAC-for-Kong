@@ -1,0 +1,150 @@
+databaseChangeLog:
+  - changeSet:
+      id: tenant-005-seed-kong-permissions
+      author: system
+      comment: Seed permissions for Kong resources in tenant schema
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM permissions WHERE permission_name = 'KONG_SERVICE_READ'
+      changes:
+        # KONG_SERVICE
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: KONG_SERVICE_READ }
+              - column: { name: description, value: "View Kong services" }
+              - column: { name: api_path, value: "/projects/*/kong/services/**" }
+              - column: { name: http_method, value: "GET" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: KONG_SERVICE_WRITE }
+              - column: { name: description, value: "Create and update Kong services" }
+              - column: { name: api_path, value: "/projects/*/kong/services/**" }
+              - column: { name: http_method, value: "*" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: KONG_SERVICE_DELETE }
+              - column: { name: description, value: "Delete Kong services" }
+              - column: { name: api_path, value: "/projects/*/kong/services/**" }
+              - column: { name: http_method, value: "DELETE" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # KONG_ROUTE
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: KONG_ROUTE_READ }
+              - column: { name: description, value: "View Kong routes" }
+              - column: { name: api_path, value: "/projects/*/kong/routes/**" }
+              - column: { name: http_method, value: "GET" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: KONG_ROUTE_WRITE }
+              - column: { name: description, value: "Create and update Kong routes" }
+              - column: { name: api_path, value: "/projects/*/kong/routes/**" }
+              - column: { name: http_method, value: "*" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: KONG_ROUTE_DELETE }
+              - column: { name: description, value: "Delete Kong routes" }
+              - column: { name: api_path, value: "/projects/*/kong/routes/**" }
+              - column: { name: http_method, value: "DELETE" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # KONG_UPSTREAM
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: KONG_UPSTREAM_READ }
+              - column: { name: description, value: "View Kong upstreams" }
+              - column: { name: api_path, value: "/projects/*/kong/upstreams/**" }
+              - column: { name: http_method, value: "GET" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: KONG_UPSTREAM_WRITE }
+              - column: { name: description, value: "Create and update Kong upstreams" }
+              - column: { name: api_path, value: "/projects/*/kong/upstreams/**" }
+              - column: { name: http_method, value: "*" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: KONG_UPSTREAM_DELETE }
+              - column: { name: description, value: "Delete Kong upstreams" }
+              - column: { name: api_path, value: "/projects/*/kong/upstreams/**" }
+              - column: { name: http_method, value: "DELETE" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # KONG_PLUGIN
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: KONG_PLUGIN_READ }
+              - column: { name: description, value: "View Kong plugins" }
+              - column: { name: api_path, value: "/projects/*/kong/plugins/**" }
+              - column: { name: http_method, value: "GET" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: KONG_PLUGIN_WRITE }
+              - column: { name: description, value: "Create and update Kong plugins" }
+              - column: { name: api_path, value: "/projects/*/kong/plugins/**" }
+              - column: { name: http_method, value: "*" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+        - insert:
+            tableName: permissions
+            columns:
+              - column: { name: permission_name, value: KONG_PLUGIN_DELETE }
+              - column: { name: description, value: "Delete Kong plugins" }
+              - column: { name: api_path, value: "/projects/*/kong/plugins/**" }
+              - column: { name: http_method, value: "DELETE" }
+              - column: { name: created_by, value: system }
+              - column: { name: updated_by, value: system }
+
+        # PROJECT_ADMIN -> all KONG permissions
+        - sql:
+            sql: >
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'PROJECT_ADMIN' AND p.permission_name LIKE 'KONG_%'
+              AND NOT EXISTS (SELECT 1 FROM role_permissions rp WHERE rp.role_id = r.id AND rp.permission_id = p.id);
+
+        # DEVELOPER -> READ
+        - sql:
+            sql: >
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'DEVELOPER' AND p.permission_name LIKE 'KONG_%_READ'
+              AND NOT EXISTS (SELECT 1 FROM role_permissions rp WHERE rp.role_id = r.id AND rp.permission_id = p.id);
+
+        # VIEWER -> READ
+        - sql:
+            sql: >
+              INSERT INTO role_permissions (role_id, permission_id)
+              SELECT r.id, p.id FROM roles r, permissions p
+              WHERE r.role_name = 'VIEWER' AND p.permission_name LIKE 'KONG_%_READ'
+              AND NOT EXISTS (SELECT 1 FROM role_permissions rp WHERE rp.role_id = r.id AND rp.permission_id = p.id);

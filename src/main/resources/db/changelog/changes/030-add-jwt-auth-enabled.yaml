@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 030-add-jwt-auth-enabled
+      author: antigravity
+      changes:
+        - addColumn:
+            tableName: projects
+            columns:
+              - column:
+                  name: jwt_auth_enabled
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
